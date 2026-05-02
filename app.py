@@ -23,10 +23,9 @@ def format_fecha(s):
         return s
 
 
-# ── DB init ────────────────────────────────────────────────────────────────────
+# ── DB init (once at startup) ──────────────────────────────────────────────────
 
-@app.before_request
-def ensure_db():
+with app.app_context():
     db.init_db()
 
 
