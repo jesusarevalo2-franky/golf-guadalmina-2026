@@ -1,9 +1,18 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 import database as db
 from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'golf-guadalmina-2026'
+
+
+_db_error = None
+
+@app.route('/health')
+def health():
+    db_set = bool(os.environ.get('DATABASE_URL'))
+    return jsonify({'status': 'ok', 'db_url_set': db_set, 'db_error': str(_db_error) if _db_error else None})
 
 
 # ── Template filters ───────────────────────────────────────────────────────────
@@ -25,8 +34,11 @@ def format_fecha(s):
 
 # ── DB init (once at startup) ──────────────────────────────────────────────────
 
-with app.app_context():
-    db.init_db()
+try:
+    with app.app_context():
+        db.init_db()
+except Exception as _e:
+    _db_error = _e
 
 
 # ── Ranking ────────────────────────────────────────────────────────────────────
