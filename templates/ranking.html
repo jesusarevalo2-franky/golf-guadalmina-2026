@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}Ranking — Golf Guadalmina 2026{% endblock %}
+
+{% block content %}
+<!-- Hero banner -->
+<div class="hero-banner">
+  <img src="/static/images/logo.png" alt="Real Club de Golf Guadalmina"
+       onerror="this.style.display='none'">
+  <div class="flex-grow-1">
+    <h1>Real Club de Golf Guadalmina</h1>
+    <p>Orden del Mérito 2026 &mdash; Grupo de los Miércoles</p>
+  </div>
+  <a href="{{ url_for('nueva_partida') }}" class="btn btn-gold px-4 py-2 fw-bold">
+    <i class="bi bi-plus-lg me-1"></i>Nueva partida
+  </a>
+</div>
+
+<p class="text-muted small mb-4">
+  <i class="bi bi-info-circle me-1"></i>
+  Clasificación bruta por puntuación acumulada &bull;
+  Clasificación neta: 4 mejores de 9 hoyos + 8 mejores de 18 hoyos &bull;
+  Desempate por HCP más bajo
+</p>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs mb-4" id="rankingTabs">
+  <li class="nav-item">
+    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-bruto">
+      <i class="bi bi-bar-chart-fill me-1"></i>Ranking Bruto
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-neto">
+      <i class="bi bi-stars me-1"></i>Ranking Neto
+      <span class="badge bg-secondary ms-1">Top 12</span>
+    </button>
+  </li>
+</ul>
+
+<div class="tab-content">
+
+  <!-- RANKING BRUTO -->
+  <div class="tab-pane fade show active" id="tab-bruto">
+    {% if ranking_bruto %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle ranking-table">
+        <thead class="table-dark">
+          <tr>
+            <th class="text-center" style="width:60px">Pos</th>
+            <th>Jugador</th>
+            <th class="text-center">HCP</th>
+            <th class="text-center">Jugadas</th>
+            <th class="text-center">Media</th>
+            <th class="text-center">Mejor</th>
+            <th class="text-center fw-bold">Total Pts</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in ranking_bruto %}
+          <tr class="{{ 'podium-1' if loop.index0==0 else 'podium-2' if loop.index0==1 else 'podium-3' if loop.index0==2 else '' }}">
+            <td class="text-center fw-bold fs-5">
+              {% if loop.index0 == 0 %}🥇{% elif loop.index0 == 1 %}🥈{% elif loop.index0 == 2 %}🥉{% else %}{{ loop.index }}{% endif %}
+            </td>
+            <td>
+              <a href="{{ url_for('perfil_jugador', jugador_id=r.jugador_id) }}" class="text-decoration-none fw-semibold text-dark">
+                {{ r.nombre }}
+              </a>
+            </td>
+            <td class="text-center text-muted small">{{ r.hcp }}</td>
+            <td class="text-center">{{ r.jugadas }}</td>
+            <td class="text-center">{{ r.media }}</td>
+            <td class="text-center">{{ r.mejor | format_pts }}</td>
+            <td class="text-center fw-bold text-green fs-5">{{ r.total_bruto | format_pts }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-clipboard-x fs-1 d-block mb-3"></i>
+      No hay partidas registradas todavía.
+      <div class="mt-3">
+        <a href="{{ url_for('nueva_partida') }}" class="btn btn-success">
+          <i class="bi bi-plus-lg me-1"></i>Registrar primera partida
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- RANKING NETO -->
+  <div class="tab-pane fade" id="tab-neto">
+    <div class="alert alert-info py-2 small">
+      <i class="bi bi-info-circle me-1"></i>
+      Solo aparecen jugadores con mínimo <strong>4 partidas de 9 hoyos</strong> (o que aún no han jugado 18 hoyos).
+      Los jugadores con 18 hoyos necesitan también <strong>8 resultados de 18 hoyos</strong>.
+    </div>
+    {% if ranking_neto %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle ranking-table">
+        <thead class="table-dark">
+          <tr>
+            <th class="text-center" style="width:60px">Pos</th>
+            <th>Jugador</th>
+            <th class="text-center">HCP</th>
+            <th class="text-center">Jugadas</th>
+            <th class="text-center">Bruto</th>
+            <th class="text-center fw-bold">Neto (Top 12)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in ranking_neto %}
+          <tr class="{{ 'podium-1' if loop.index0==0 else 'podium-2' if loop.index0==1 else 'podium-3' if loop.index0==2 else '' }}">
+            <td class="text-center fw-bold fs-5">
+              {% if loop.index0 == 0 %}🥇{% elif loop.index0 == 1 %}🥈{% elif loop.index0 == 2 %}🥉{% else %}{{ loop.index }}{% endif %}
+            </td>
+            <td>
+              <a href="{{ url_for('perfil_jugador', jugador_id=r.jugador_id) }}" class="text-decoration-none fw-semibold text-dark">
+                {{ r.nombre }}
+              </a>
+            </td>
+            <td class="text-center text-muted small">{{ r.hcp }}</td>
+            <td class="text-center">
+              <span class="badge bg-light text-dark border">
+                9h: {{ r.jugadas_9h }} &nbsp;|&nbsp; 18h: {{ r.jugadas_18h }}
+              </span>
+            </td>
+            <td class="text-center text-muted">{{ r.total_bruto | format_pts }}</td>
+            <td class="text-center fw-bold text-green fs-5">{{ r.total_neto | format_pts }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-hourglass-split fs-1 d-block mb-3"></i>
+      Ningún jugador ha completado el mínimo de partidas todavía.
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- Tabla de puntuaciones -->
+<div class="card mt-5 border-0 bg-light">
+  <div class="card-body">
+    <h6 class="card-title text-muted mb-3">
+      <i class="bi bi-table me-1"></i>Tabla de puntuación
+    </h6>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <table class="table table-sm table-bordered mb-0 small">
+          <thead class="table-secondary"><tr><th colspan="3" class="text-center">18 hoyos</th></tr>
+            <tr><th>Pos</th><th class="text-end">Normal</th><th class="text-end">Major (+50%)</th></tr>
+          </thead>
+          <tbody>
+            {% for pos, pts, major in [(1,25,37.5),(2,18,27),(3,15,22.5),(4,12,18),(5,10,15),(6,8,12),(7,6,9),(8,4,6),(9,2,3),('10+',1,1.5)] %}
+            <tr><td>{{ pos }}º</td><td class="text-end">{{ pts }}</td><td class="text-end text-warning">{{ major }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="col-md-6">
+        <table class="table table-sm table-bordered mb-0 small">
+          <thead class="table-secondary"><tr><th colspan="3" class="text-center">9 hoyos</th></tr>
+            <tr><th>Pos</th><th class="text-end">Normal</th><th class="text-end">Major (+50%)</th></tr>
+          </thead>
+          <tbody>
+            {% for pos, pts, major in [(1,12.5,18.75),(2,9,13.5),(3,7.5,11.25),(4,6,9),(5,5,7.5),(6,4,6),(7,3,4.5),(8,2,3),(9,1,1.5),('10+',0.5,0.75)] %}
+            <tr><td>{{ pos }}º</td><td class="text-end">{{ pts }}</td><td class="text-end text-warning">{{ major }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

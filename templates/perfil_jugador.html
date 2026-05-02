@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}{{ jugador.nombre }} — Golf Guadalmina{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+  <div>
+    <h1 class="h3 mb-0">{{ jugador.nombre }}</h1>
+    <p class="text-muted mb-0">HCP {{ jugador.hcp }}</p>
+  </div>
+  <a href="{{ url_for('jugadores') }}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>Volver
+  </a>
+</div>
+
+{% set pts_list = historial | map(attribute='puntos') | list %}
+{% set total = pts_list | sum %}
+{% set num = pts_list | length %}
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="card text-center border-0 bg-light">
+      <div class="card-body py-3">
+        <div class="fs-3 fw-bold text-green">{{ num }}</div>
+        <div class="small text-muted">Partidas</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center border-0 bg-light">
+      <div class="card-body py-3">
+        <div class="fs-3 fw-bold text-green">{{ total | format_pts }}</div>
+        <div class="small text-muted">Puntos totales</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center border-0 bg-light">
+      <div class="card-body py-3">
+        <div class="fs-3 fw-bold text-green">
+          {% if num %}{{ (total / num) | round(2) }}{% else %}—{% endif %}
+        </div>
+        <div class="small text-muted">Media</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center border-0 bg-light">
+      <div class="card-body py-3">
+        <div class="fs-3 fw-bold text-green">
+          {% if num %}{{ pts_list | max | format_pts }}{% else %}—{% endif %}
+        </div>
+        <div class="small text-muted">Mejor resultado</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if historial %}
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>Fecha</th>
+        <th>Campo</th>
+        <th class="text-center">Hoyos</th>
+        <th class="text-center">Stableford</th>
+        <th class="text-center">Pos</th>
+        <th class="text-center fw-bold">Puntos</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in historial %}
+      <tr>
+        <td>
+          {{ r.fecha | format_fecha }}
+          {% if r.es_major %}<span class="badge bg-warning text-dark ms-1">Major</span>{% endif %}
+        </td>
+        <td class="small text-muted">{{ r.campo }}</td>
+        <td class="text-center small">{{ r.hoyos }}</td>
+        <td class="text-center">{{ r.stableford }}</td>
+        <td class="text-center">
+          {% if r.posicion == 1 %}🥇{% elif r.posicion == 2 %}🥈{% elif r.posicion == 3 %}🥉
+          {% else %}{{ r.posicion }}{% endif %}
+        </td>
+        <td class="text-center fw-bold text-green">{{ r.puntos | format_pts }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-clipboard-x fs-1 d-block mb-3"></i>
+  Sin resultados registrados todavía.
+</div>
+{% endif %}
+{% endblock %}

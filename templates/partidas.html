@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Partidas — Golf Guadalmina 2026{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <h1 class="h3 mb-0"><i class="bi bi-calendar3 me-2"></i>Historial de Partidas</h1>
+  <a href="{{ url_for('nueva_partida') }}" class="btn btn-success">
+    <i class="bi bi-plus-lg me-1"></i>Nueva partida
+  </a>
+</div>
+
+{% if partidas %}
+<div class="row g-3">
+  {% for p in partidas %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm border-0">
+      <div class="card-header d-flex align-items-center justify-content-between
+                  {{ 'bg-gold text-dark' if p.es_major else 'bg-green text-white' }}">
+        <span class="fw-bold">
+          {% if p.semana %}Semana {{ p.semana }} &mdash; {% endif %}
+          {{ p.fecha | format_fecha }}
+        </span>
+        {% if p.es_major %}
+        <span class="badge bg-dark ms-2">⭐ Major</span>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <p class="mb-1">
+          <i class="bi bi-geo-alt-fill text-green me-1"></i>
+          <strong>{{ p.campo }}</strong>
+        </p>
+        <p class="mb-1">
+          <i class="bi bi-flag me-1 text-muted"></i>
+          {{ p.hoyos }}
+        </p>
+        <p class="mb-0 text-muted small">
+          <i class="bi bi-people me-1"></i>{{ p.num_jugadores }} jugadores
+        </p>
+        {% if p.notas %}
+        <p class="mb-0 text-muted small mt-1"><i class="bi bi-sticky me-1"></i>{{ p.notas }}</p>
+        {% endif %}
+      </div>
+      <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
+        <a href="{{ url_for('ver_partida', partida_id=p.id) }}" class="btn btn-sm btn-outline-success">
+          <i class="bi bi-eye me-1"></i>Ver resultados
+        </a>
+        <form method="post" action="{{ url_for('eliminar_partida', partida_id=p.id) }}"
+              onsubmit="return confirm('¿Eliminar esta partida?')">
+          <button class="btn btn-sm btn-outline-danger">
+            <i class="bi bi-trash"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-calendar-x fs-1 d-block mb-3"></i>
+  No hay partidas registradas.
+  <div class="mt-3">
+    <a href="{{ url_for('nueva_partida') }}" class="btn btn-success">
+      <i class="bi bi-plus-lg me-1"></i>Registrar primera partida
+    </a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

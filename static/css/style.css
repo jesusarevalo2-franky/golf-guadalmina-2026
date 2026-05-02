@@ -1,0 +1,125 @@
+:root {
+  --green: #1a6b3a;
+  --green-light: #2d8a50;
+  --gold: #c9a227;
+  --navy: #2a3a7c;
+}
+
+/* ── Background ───────────────────────────────────────────────────────────── */
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: #e8f0e9;
+  background-image: url('/static/images/fondo.png');
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+/* Overlay sobre el fondo para legibilidad */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(1px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ── Navbar ───────────────────────────────────────────────────────────────── */
+.bg-green { background-color: var(--green) !important; }
+.text-green { color: var(--green) !important; }
+.text-gold  { color: var(--gold) !important; }
+
+.navbar {
+  background: linear-gradient(135deg, var(--green) 0%, #0f4a27 100%) !important;
+  border-bottom: 3px solid var(--gold);
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.navbar-logo {
+  height: 48px;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+}
+
+.btn-gold {
+  background-color: var(--gold);
+  color: #1a1a1a;
+  border: none;
+  font-weight: 600;
+}
+.btn-gold:hover {
+  background-color: #b8911f;
+  color: #fff;
+}
+
+/* ── Cards ────────────────────────────────────────────────────────────────── */
+.card {
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+  background: rgba(255,255,255,0.93);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+}
+.card-header { border-radius: 12px 12px 0 0 !important; }
+
+/* ── Ranking table ────────────────────────────────────────────────────────── */
+.ranking-table tbody tr:hover { background-color: rgba(26,107,58,.06); }
+.podium-1 { background: linear-gradient(90deg, #fff8e1 0%, #fffde7 100%); }
+.podium-2 { background: linear-gradient(90deg, #f5f5f5 0%, #fafafa 100%); }
+.podium-3 { background: linear-gradient(90deg, #fff3e0 0%, #fff8f0 100%); }
+
+/* ── Hero banner (página de ranking) ─────────────────────────────────────── */
+.hero-banner {
+  background: linear-gradient(135deg, var(--green) 0%, #0f4a27 100%);
+  border-radius: 16px;
+  padding: 28px 32px;
+  color: white;
+  margin-bottom: 28px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+  border: 2px solid var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.hero-banner img {
+  height: 90px;
+  width: auto;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+}
+.hero-banner h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.hero-banner p {
+  margin: 4px 0 0;
+  opacity: 0.85;
+  font-size: 0.9rem;
+}
+
+/* ── Utility ──────────────────────────────────────────────────────────────── */
+.bg-gold { background-color: var(--gold) !important; }
+
+/* ── Nav active ───────────────────────────────────────────────────────────── */
+.navbar-nav .nav-link.active {
+  font-weight: 600;
+  border-bottom: 2px solid rgba(255,255,255,.7);
+}
+
+/* ── Mobile optimizations ─────────────────────────────────────────────────── */
+@media (max-width: 576px) {
+  .btn { min-height: 44px; }
+  .form-control, .form-select { min-height: 44px; font-size: 16px; }
+  .table td, .table th { padding: .6rem .5rem; }
+  .hero-banner { flex-direction: column; text-align: center; padding: 20px; }
+  .hero-banner img { height: 70px; }
+  .hero-banner h1 { font-size: 1.2rem; }
+}

@@ -1,0 +1,8 @@
+Para añadir la foto del campo de golf como fondo:
+1. Guarda la foto del campo (la del green con el mar) con el nombre: fondo.jpg
+2. Ponla en esta misma carpeta: static/images/fondo.jpg
+
+Para el logo del club:
+- Ya está incluido como logo.svg (creado por Claude)
+- Si tienes el PNG original del escudo, nómbralo: logo.png y ponlo aquí
+  (la app lo usará automáticamente en lugar del SVG)

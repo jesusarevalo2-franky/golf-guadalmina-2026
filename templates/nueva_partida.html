@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Nueva Partida — Golf Guadalmina 2026{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-lg-8">
+
+<h1 class="h3 mb-4"><i class="bi bi-plus-circle-fill text-success me-2"></i>Registrar Partida</h1>
+
+<form method="post" id="formPartida">
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-green text-white fw-bold">
+      <i class="bi bi-info-circle me-1"></i>Datos de la partida
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-sm-4">
+          <label class="form-label">Fecha <span class="text-danger">*</span></label>
+          <input type="date" name="fecha" class="form-control" required
+                 value="{{ request.form.get('fecha', '') }}">
+        </div>
+        <div class="col-sm-4">
+          <label class="form-label">Nº Semana <span class="text-muted small">(opcional)</span></label>
+          <input type="number" name="semana" class="form-control" min="1" max="52"
+                 value="{{ request.form.get('semana', '') }}" placeholder="ej. 5">
+        </div>
+        <div class="col-sm-4">
+          <label class="form-label">Hoyos <span class="text-danger">*</span></label>
+          <select name="hoyos" class="form-select" required>
+            <option value="9 hoyos" {% if request.form.get('hoyos','9 hoyos')=='9 hoyos' %}selected{% endif %}>9 hoyos</option>
+            <option value="18 hoyos" {% if request.form.get('hoyos')=='18 hoyos' %}selected{% endif %}>18 hoyos</option>
+          </select>
+        </div>
+        <div class="col-sm-8">
+          <label class="form-label">Campo</label>
+          <input type="text" name="campo" class="form-control"
+                 value="{{ request.form.get('campo', 'Guadalmina Norte') }}">
+        </div>
+        <div class="col-sm-4 d-flex align-items-end">
+          <div class="form-check form-switch ms-1">
+            <input class="form-check-input" type="checkbox" name="es_major" id="chkMajor"
+                   {% if request.form.get('es_major') %}checked{% endif %}>
+            <label class="form-check-label fw-semibold" for="chkMajor">
+              ⭐ Major <span class="text-muted small">(+50%)</span>
+            </label>
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Notas <span class="text-muted small">(opcional)</span></label>
+          <input type="text" name="notas" class="form-control" placeholder="Observaciones..."
+                 value="{{ request.form.get('notas', '') }}">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Jugadores -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-green text-white fw-bold d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-people me-1"></i>Resultados</span>
+      <button type="button" id="btnAddRow" class="btn btn-sm btn-light">
+        <i class="bi bi-plus-lg me-1"></i>Añadir jugador
+      </button>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle" id="tablaJugadores">
+          <thead class="table-light">
+            <tr>
+              <th style="width:50%">Jugador</th>
+              <th>Stableford</th>
+              <th style="width:50px"></th>
+            </tr>
+          </thead>
+          <tbody id="jugadoresBody">
+            <!-- rows injected by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn btn-success btn-lg px-5">
+      <i class="bi bi-check-lg me-1"></i>Guardar partida
+    </button>
+    <a href="{{ url_for('partidas') }}" class="btn btn-outline-secondary btn-lg">Cancelar</a>
+  </div>
+</form>
+
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const JUGADORES = {{ jugadores | tojson }};
+
+function buildSelect(selectedId) {
+  let s = '<select name="jugador_id[]" class="form-select" required>';
+  s += '<option value="">— Seleccionar —</option>';
+  JUGADORES.forEach(j => {
+    const sel = j.id == selectedId ? 'selected' : '';
+    s += `<option value="${j.id}" ${sel}>${j.nombre} (HCP ${j.hcp})</option>`;
+  });
+  s += '</select>';
+  return s;
+}
+
+function addRow(jugadorId, stableford) {
+  const tbody = document.getElementById('jugadoresBody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${buildSelect(jugadorId || '')}</td>
+    <td><input type="number" name="stableford[]" class="form-control" min="0" max="72"
+               value="${stableford || ''}" placeholder="pts" required></td>
+    <td><button type="button" class="btn btn-sm btn-outline-danger btn-del">
+      <i class="bi bi-trash"></i></button></td>
+  `;
+  tr.querySelector('.btn-del').addEventListener('click', () => tr.remove());
+  tbody.appendChild(tr);
+}
+
+document.getElementById('btnAddRow').addEventListener('click', () => addRow());
+
+// Start with empty rows for all players to make entry easy
+for (let i = 0; i < 6; i++) addRow();
+</script>
+{% endblock %}

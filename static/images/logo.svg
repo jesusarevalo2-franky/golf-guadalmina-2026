@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 270" width="240" height="270">
+  <defs>
+    <path id="arcTop" d="M 42 138 A 78 78 0 0 1 198 138"/>
+    <path id="arcBot" d="M 45 145 A 78 78 0 0 0 195 145"/>
+  </defs>
+
+  <!-- Palos de golf cruzados -->
+  <!-- Palo izquierdo (de izq-arriba a der-abajo) -->
+  <line x1="30" y1="52" x2="185" y2="230" stroke="#2a3a7c" stroke-width="9" stroke-linecap="round"/>
+  <ellipse cx="183" cy="229" rx="14" ry="7" fill="#2a3a7c" transform="rotate(42 183 229)"/>
+  <!-- Palo derecho (de der-arriba a izq-abajo) -->
+  <line x1="210" y1="52" x2="55" y2="230" stroke="#2a3a7c" stroke-width="9" stroke-linecap="round"/>
+  <ellipse cx="57" cy="229" rx="14" ry="7" fill="#2a3a7c" transform="rotate(-42 57 229)"/>
+
+  <!-- Borde exterior dorado -->
+  <circle cx="120" cy="138" r="88" fill="#c9a227"/>
+  <!-- Círculo azul marino -->
+  <circle cx="120" cy="138" r="80" fill="#2a3a7c"/>
+
+  <!-- Mitad superior verde -->
+  <path d="M 40 138 A 80 80 0 0 1 200 138 Z" fill="#1a6b3a"/>
+  <!-- Mitad inferior azul marino -->
+  <path d="M 40 138 A 80 80 0 0 0 200 138 Z" fill="#2a3a7c"/>
+
+  <!-- Línea diagonal separadora (verde/azul) -->
+  <line x1="40" y1="138" x2="200" y2="138" stroke="#c9a227" stroke-width="2"/>
+
+  <!-- Banderín / flecha verde apuntando a la derecha -->
+  <polygon points="45,82  190,138  45,194" fill="#1a6b3a"/>
+  <!-- Borde dorado del banderín -->
+  <polygon points="45,82  190,138  45,194" fill="none" stroke="#c9a227" stroke-width="2"/>
+
+  <!-- Círculo dorado central -->
+  <circle cx="118" cy="138" r="22" fill="#c9a227"/>
+  <!-- Hexágono/escudo interior azul -->
+  <circle cx="118" cy="138" r="17" fill="#2a3a7c"/>
+  <!-- Letra G estilizada en verde -->
+  <text x="118" y="144" font-family="Georgia, serif" font-size="18" font-weight="bold"
+        fill="#1a6b3a" text-anchor="middle">G</text>
+
+  <!-- Texto "Real Club de Golf" arriba -->
+  <text font-family="Georgia, serif" font-size="11" fill="#c9a227" font-weight="bold" letter-spacing="0.5">
+    <textPath href="#arcTop" startOffset="8%">Real Club de Golf</textPath>
+  </text>
+
+  <!-- Texto "Guadalmina" abajo -->
+  <text font-family="Georgia, serif" font-size="11" fill="#c9a227" font-weight="bold" letter-spacing="1">
+    <textPath href="#arcBot" startOffset="22%">Guadalmina</textPath>
+  </text>
+
+  <!-- Corona -->
+  <g transform="translate(120, 54)">
+    <!-- Base de la corona -->
+    <rect x="-24" y="0" width="48" height="13" rx="3" fill="#c9a227"/>
+    <!-- Puntas de la corona -->
+    <polygon points="-24,0 -24,-18 -14,-8 0,-22 14,-8 24,-18 24,0" fill="#c9a227"/>
+    <!-- Gemas en puntas -->
+    <circle cx="-24" cy="-1" r="4" fill="#cc2200"/>
+    <circle cx="0" cy="-22" r="5" fill="#cc2200"/>
+    <circle cx="24" cy="-1" r="4" fill="#cc2200"/>
+    <!-- Perlas en la base -->
+    <circle cx="-16" cy="6" r="3" fill="white"/>
+    <circle cx="-8"  cy="6" r="3" fill="white"/>
+    <circle cx="0"   cy="6" r="3" fill="white"/>
+    <circle cx="8"   cy="6" r="3" fill="white"/>
+    <circle cx="16"  cy="6" r="3" fill="white"/>
+  </g>
+</svg>

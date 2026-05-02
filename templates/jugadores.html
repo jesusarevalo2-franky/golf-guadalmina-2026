@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Jugadores — Golf Guadalmina 2026{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4"><i class="bi bi-people-fill me-2"></i>Jugadores</h1>
+
+<div class="row g-4">
+  <!-- Lista -->
+  <div class="col-lg-8">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Jugador</th>
+            <th class="text-center">HCP</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for j in jugadores %}
+          <tr>
+            <td class="text-muted small">{{ loop.index }}</td>
+            <td>
+              <a href="{{ url_for('perfil_jugador', jugador_id=j.id) }}"
+                 class="text-decoration-none fw-semibold text-dark">{{ j.nombre }}</a>
+            </td>
+            <td class="text-center">
+              <span class="badge bg-light text-dark border">{{ j.hcp }}</span>
+            </td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-secondary"
+                      data-bs-toggle="modal" data-bs-target="#editModal"
+                      data-id="{{ j.id }}" data-nombre="{{ j.nombre }}" data-hcp="{{ j.hcp }}">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <form method="post" action="{{ url_for('eliminar_jugador', jugador_id=j.id) }}"
+                    class="d-inline" onsubmit="return confirm('¿Eliminar a {{ j.nombre }}?')">
+                <button class="btn btn-sm btn-outline-danger">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Formulario nuevo -->
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-green text-white fw-bold">
+        <i class="bi bi-person-plus me-1"></i>Nuevo jugador
+      </div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('nuevo_jugador') }}">
+          <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input type="text" name="nombre" class="form-control" required placeholder="Nombre completo">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Handicap</label>
+            <input type="number" name="hcp" class="form-control" step="0.1" min="0" max="54"
+                   required placeholder="ej. 14.6">
+          </div>
+          <button type="submit" class="btn btn-success w-100">
+            <i class="bi bi-plus-lg me-1"></i>Añadir jugador
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header bg-green text-white">
+        <h5 class="modal-title">Editar jugador</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" id="editForm">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input type="text" name="nombre" id="editNombre" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Handicap</label>
+            <input type="number" name="hcp" id="editHcp" class="form-control" step="0.1" min="0" max="54" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('editModal').addEventListener('show.bs.modal', e => {
+  const btn = e.relatedTarget;
+  document.getElementById('editNombre').value = btn.dataset.nombre;
+  document.getElementById('editHcp').value = btn.dataset.hcp;
+  document.getElementById('editForm').action = `/jugadores/${btn.dataset.id}/editar`;
+});
+</script>
+{% endblock %}
