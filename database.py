@@ -2,7 +2,7 @@ import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-DATABASE_URL = os.environ.get('DATABASE_URL')
+DATABASE_URL = (os.environ.get('DATABASE_URL') or '').strip()
 
 PTS_18H = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1]
 PTS_9H  = [12.5, 9, 7.5, 6, 5, 4, 3, 2, 1, 0.5]
