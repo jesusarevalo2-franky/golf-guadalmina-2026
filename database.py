@@ -82,28 +82,24 @@ def get_ranking():
         for j in jugadores:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("""
-                    SELECT r.puntos FROM resultados r
+                    SELECT r.puntos, p.hoyos FROM resultados r
                     JOIN partidas p ON p.id = r.partida_id
-                    WHERE r.jugador_id=%s AND p.hoyos='9 hoyos'
+                    WHERE r.jugador_id=%s
                     ORDER BY r.puntos DESC
                 """, (j['id'],))
-                res_9h = cur.fetchall()
+                todos = cur.fetchall()
 
-                cur.execute("""
-                    SELECT r.puntos FROM resultados r
-                    JOIN partidas p ON p.id = r.partida_id
-                    WHERE r.jugador_id=%s AND p.hoyos='18 hoyos'
-                    ORDER BY r.puntos DESC
-                """, (j['id'],))
-                res_18h = cur.fetchall()
+            res_9h  = [r for r in todos if r['hoyos'] == '9 hoyos']
+            res_18h = [r for r in todos if r['hoyos'] == '18 hoyos']
 
-            mejores_9h  = [r['puntos'] for r in res_9h[:4]]
-            mejores_18h = [r['puntos'] for r in res_18h[:8]]
-            total_bruto = sum(r['puntos'] for r in res_9h) + sum(r['puntos'] for r in res_18h)
-            jugadas     = len(res_9h) + len(res_18h)
+            todos_puntos = [r['puntos'] for r in todos]
+            mejores_4   = sorted(todos_puntos, reverse=True)[:4]
 
-            tiene_min = len(res_9h) >= 4 and (len(res_18h) >= 8 or len(res_18h) == 0)
-            total_neto = (sum(mejores_9h) + sum(mejores_18h)) if tiene_min else None
+            total_bruto = sum(todos_puntos)
+            jugadas     = len(todos)
+
+            tiene_min  = jugadas >= 4
+            total_neto = sum(mejores_4) if tiene_min else None
 
             ranking.append({
                 'jugador_id':  j['id'],
@@ -115,7 +111,7 @@ def get_ranking():
                 'total_bruto': total_bruto,
                 'total_neto':  total_neto,
                 'media':       round(total_bruto / jugadas, 2) if jugadas else 0,
-                'mejor':       max([r['puntos'] for r in res_9h] + [r['puntos'] for r in res_18h], default=0),
+                'mejor':       max(todos_puntos, default=0),
             })
 
         ranking_bruto = sorted([r for r in ranking if r['jugadas'] > 0],
