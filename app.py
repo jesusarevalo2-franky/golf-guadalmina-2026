@@ -1,4 +1,8 @@
 import os
+import re
+import json
+import unicodedata
+import urllib.request
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 import database as db
 from datetime import datetime
@@ -105,6 +109,112 @@ def nueva_partida():
             return redirect(url_for('ver_partida', partida_id=pid))
 
     return render_template('nueva_partida.html', jugadores=jugadores)
+
+
+# ── Importar desde GolfDirecto ─────────────────────────────────────────────────
+
+def _gd_parse_url(url):
+    m = re.search(r'round/([a-f0-9]{24}).*?category[=/]([a-f0-9]{24})', url)
+    return (m.group(1), m.group(2)) if m else (None, None)
+
+
+def _gd_fetch(round_id, category_id):
+    api = f"https://www.golfdirecto.com/online-card/v3/round/{round_id}/ranking?view=acc&category={category_id}"
+    with urllib.request.urlopen(api, timeout=10) as r:
+        return json.loads(r.read())
+
+
+def _normalize(s):
+    s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode('ascii').upper()
+    return set(s.split())
+
+_NICK = {'PACO': 'FRANCISCO', 'PEPE': 'JOSE', 'NACHO': 'IGNACIO', 'KIKE': 'ENRIQUE'}
+
+
+def _best_jugador(gd_name, jugadores):
+    gd_words = _normalize(gd_name)
+    best, best_score = None, 0
+    for j in jugadores:
+        j_words = _normalize(j['nombre'])
+        expanded = set(j_words)
+        for w in list(j_words):
+            if w in _NICK:
+                expanded.add(_NICK[w])
+        score = len(expanded & gd_words) / len(j_words) if j_words else 0
+        if score > best_score:
+            best_score, best = score, j
+    return best['id'] if best and best_score >= 0.4 else None
+
+
+@app.route('/partidas/importar', methods=['GET', 'POST'])
+def importar_golfdirecto():
+    jugadores = list(db.get_jugadores())
+
+    if request.method == 'GET':
+        return render_template('importar_golfdirecto.html', jugadores=jugadores)
+
+    accion = request.form.get('accion', 'previsualizar')
+
+    if accion == 'previsualizar':
+        url = request.form.get('url', '').strip()
+        round_id, category_id = _gd_parse_url(url)
+        if not round_id:
+            flash('URL de GolfDirecto no válida. Pega la URL completa del ranking.', 'danger')
+            return render_template('importar_golfdirecto.html', jugadores=jugadores)
+        try:
+            data = _gd_fetch(round_id, category_id)
+        except Exception as e:
+            flash(f'No se pudo conectar con GolfDirecto: {e}', 'danger')
+            return render_template('importar_golfdirecto.html', jugadores=jugadores)
+
+        fecha = data['game']['scheduleStartDate'][:10]
+        items = data['items']
+        hoyos = '18 hoyos' if items and items[0].get('playedTotal', 0) >= 18 else '9 hoyos'
+        score_key = 'resultLap18' if hoyos == '18 hoyos' else 'resultLap9f'
+
+        matches = [
+            {
+                'gd_name':    item['teamName'],
+                'stableford': item['itemScore'].get(score_key, 0),
+                'jugador_id': _best_jugador(item['teamName'], jugadores),
+            }
+            for item in items
+        ]
+
+        return render_template('importar_golfdirecto.html',
+                               jugadores=jugadores,
+                               matches=matches,
+                               fecha=fecha,
+                               hoyos=hoyos,
+                               round_id=round_id,
+                               category_id=category_id)
+
+    # accion == 'confirmar'
+    fecha      = request.form.get('fecha')
+    campo      = request.form.get('campo', 'Guadalmina Norte')
+    hoyos      = request.form.get('hoyos')
+    semana     = request.form.get('semana') or None
+    major      = 'es_major' in request.form
+    notas      = request.form.get('notas', '')
+    jugador_ids = request.form.getlist('jugador_id[]')
+    stablefords = request.form.getlist('stableford[]')
+
+    resultados_data, seen = [], set()
+    for jid, sf in zip(jugador_ids, stablefords):
+        if jid and jid != '0' and jid not in seen:
+            try:
+                resultados_data.append((int(jid), int(sf)))
+                seen.add(jid)
+            except ValueError:
+                pass
+
+    if not fecha or not hoyos or len(resultados_data) < 2:
+        flash('Datos incompletos. Verifica fecha, hoyos y jugadores.', 'warning')
+        return redirect(url_for('importar_golfdirecto'))
+
+    pid = db.add_partida(semana, fecha, campo, hoyos, major, notas, resultados_data)
+    flash(f'Partida importada con {len(resultados_data)} jugadores.', 'success')
+    return redirect(url_for('ver_partida', partida_id=pid))
 
 
 @app.route('/partidas/<int:partida_id>/eliminar', methods=['POST'])

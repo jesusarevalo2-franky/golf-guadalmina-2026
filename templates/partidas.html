@@ -4,9 +4,14 @@
 {% block content %}
 <div class="d-flex align-items-center justify-content-between mb-4">
   <h1 class="h3 mb-0"><i class="bi bi-calendar3 me-2"></i>Historial de Partidas</h1>
-  <a href="{{ url_for('nueva_partida') }}" class="btn btn-success">
-    <i class="bi bi-plus-lg me-1"></i>Nueva partida
-  </a>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('importar_golfdirecto') }}" class="btn btn-outline-success">
+      <i class="bi bi-cloud-download me-1"></i>Importar GolfDirecto
+    </a>
+    <a href="{{ url_for('nueva_partida') }}" class="btn btn-success">
+      <i class="bi bi-plus-lg me-1"></i>Nueva partida
+    </a>
+  </div>
 </div>
 
 {% if partidas %}
